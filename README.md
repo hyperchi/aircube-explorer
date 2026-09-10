@@ -81,3 +81,13 @@ Both Base KiCad and the user's Pro schematic photos label U7 ESP32-H2-MINI-1, wh
 Verification: `npm test`, then with local Vite running `TEST_URL=http://localhost:5175 node scripts/design-browser-check.mjs` and `TEST_URL=http://localhost:5175 node scripts/browser-check.mjs`.
 
 Connection changes automatically focus the PCB front and highlight affected source components. Thread keeps U7; Wi-Fi marks U7 for replacement and U6 for power review; cellular keeps U7 and marks U6/P1 for power-budget review. Colored rings remain attached to KiCad component coordinates while zooming/panning. The caption lists proposed cellular additions without inventing their PCB placement. Air & LEDs clears the design overlay; returning to Design lab restores it.
+
+## Component library and 3D
+
+Open **Component library** in the header area or **View in 3D** in the inspector. All 44 Base PCB components are searchable by reference, value and footprint, with category filters, roles, footprint details and a Locate on board action. Rotate with drag, zoom with wheel/pinch, or use Top/Bottom/Reset.
+
+37 components use CAD-backed geometry: official Espressif ESP32-H2-MINI-1 STEP and package/LED models extracted from the original AirCube STEP assembly. Seven components (P1, S2, S3, TP2, U2, U6, U10) use visibly labeled simplified models from footprint pad positions and approximate bodies. Generic package CAD does not establish the exact vendor, height or markings for all values. These are individual part views, not a claimed complete 3D board assembly. Pro-only sensors are absent from this Base catalog.
+
+Source attribution, license terms and transformation notes are in `public/models/README.md`. Espressif geometry is CC BY-SA 4.0 with the KiCad exception; see `ESPRESSIF-LICENSE.md`. Conversion uses occt-import-js at development time; the browser lazily loads Three.js, OrbitControls and preconverted geometry. Models remain protected by the existing login middleware. WebGL failure displays an explicit fallback message with component details available.
+
+Run `node scripts/library-browser-check.mjs` against local Vite (default port 5175) to verify 3D, search, simplified labeling, locate, reopening, Escape and mobile layout. Rebuild geometry with `node scripts/prepare-component-models.mjs <AirCube.step> <ESP32-H2-MINI-1.STEP>`.

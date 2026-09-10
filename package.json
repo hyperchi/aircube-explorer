@@ -11,10 +11,12 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
+    "occt-import-js": "^0.0.23",
     "vite": "^7.1.0"
   },
   "dependencies": {
     "express": "^5.2.1",
-    "jose": "^6.2.12"
+    "jose": "^6.2.12",
+    "three": "^0.186.0"
   }
 }
