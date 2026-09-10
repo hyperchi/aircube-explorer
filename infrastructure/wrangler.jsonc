@@ -1,0 +1,10 @@
+{
+  "name": "noware-gcp-router",
+  "main": "cloudflare-proxy.js",
+  "compatibility_date": "2026-09-10",
+  "account_id": "7169d751a4bf899c1597516087959b83",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{"pattern": "noware.so", "custom_domain": true}],
+  "vars": {"CLOUD_RUN_ORIGIN": "https://not-configured.run.app"}
+}

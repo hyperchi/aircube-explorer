@@ -1,0 +1,18 @@
+# Dedicated noware hosting
+
+Target project: `noware-hardware` (display name **noware**), separate from GTM.
+
+The Node server and all app files run in Google Cloud Run. A small Cloudflare Worker forwards `noware.so` requests to the Cloud Run TLS origin without caching authenticated responses. It contains no sign-in or simulation implementation. This avoids a paid Google load balancer and leaves Cloudflare handling the custom-domain certificate.
+
+Runtime configuration:
+- `APP_ORIGIN=https://noware.so`
+- `GOOGLE_CLIENT_ID`: a web OAuth client created in the new noware project, with `https://noware.so` in Authorized JavaScript origins.
+- `SESSION_SECRET`: a new random secret in the noware project's Secret Manager.
+
+Use a dedicated `noware-runtime` service account with accessor permission only on its session secret. Deploy the Dockerfile to Cloud Run with min instances 0 and a small maximum. `PORT` is supplied by Cloud Run. The app checks Google Workspace membership in `noso.so`; HTTP access to Cloud Run must reach that application login gate.
+
+After deployment, set the actual Cloud Run URL in `wrangler.jsonc`, then deploy with `npx wrangler@latest deploy --config infrastructure/wrangler.jsonc`.
+
+Cloudflare zone `31e0af31d6981634c0773920a2c60795` is pending registrar delegation. Required nameservers: `anita.ns.cloudflare.com`, `wilson.ns.cloudflare.com`.
+
+Before removing Vercel, verify the custom domain, Google sign-in, 30-day cookie, logout, and unauthenticated blocking of the board and downloads. Remove only the `aircube-explorer` Vercel project after those checks.
