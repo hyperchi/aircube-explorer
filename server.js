@@ -11,11 +11,19 @@ export function createApp(){
  app.disable('x-powered-by');
  app.use((req,res,next)=>{res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('Cross-Origin-Opener-Policy','same-origin-allow-popups');next()});
  app.get('/api/health',(req,res)=>res.status(200).send('ok'));
+ // This header controls canonical URLs only; authentication is always required.
+ app.use((req,res,next)=>{
+  if(req.hostname.endsWith('.run.app') && req.get('X-Noware-Public-Host')!=='noware.so')
+   return res.redirect(308,'https://noware.so'+req.originalUrl);
+  next();
+ });
  app.all('/api/auth',express.json({limit:'20kb'}),auth);
- for(const file of ['login.html','login.js'])app.get('/'+file,(req,res)=>res.sendFile(path.join(dist,file)));
+ app.get('/login', (req,res)=>res.sendFile(path.join(dist,'login.html')));
+ app.get('/login.html', (req,res)=>res.redirect(308,'/login'));
+ for(const file of ['login.js','favicon.ico'])app.get('/'+file,(req,res)=>res.sendFile(path.join(dist,file)));
  app.use(async(req,res,next)=>{
   const session=await readSession(getCookie(req.headers.cookie,SESSION_COOKIE),{secret:process.env.SESSION_SECRET,domain:ALLOWED_DOMAIN});
-  if(!session)return res.redirect(303,'/login.html');
+  if(!session)return res.redirect(303,'/login');
   next();
  });
  app.use(express.static(dist,{dotfiles:'deny',etag:false,lastModified:false,setHeaders:res=>res.setHeader('Cache-Control','private, no-store')}));

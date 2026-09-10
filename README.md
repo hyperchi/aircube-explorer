@@ -47,7 +47,7 @@ Deploy using `./infrastructure/deploy-gcp.sh`; deploy Cloudflare routing with `n
 
 ## Noso Google sign-in
 
-Production routes are protected by the Express server on Cloud Run, including board JSON, bundles, and source downloads. Only the login page, login script, authentication endpoint, and health endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
+Production routes are protected by the Express server on Cloud Run, including board JSON, bundles, and source downloads. Only the login page, login script, favicon, authentication endpoint, and health endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
 
 Verified identities receive a signed HttpOnly, Secure, SameSite=Lax cookie lasting exactly 30 days (2,592,000 seconds). Expiry is fixed at sign-in, not extended by page visits. Sign out clears this browser's session. Changing `SESSION_SECRET` invalidates all sessions. Workspace membership is checked at sign-in; removing a Workspace account does not revoke an existing 30-day session immediately.
 
@@ -56,8 +56,14 @@ Required server-only Cloud Run environment variables:
 - `GOOGLE_CLIENT_ID`: OAuth web client in the dedicated noware project.
 - `SESSION_SECRET`: independently generated random secret, at least 32 characters.
 - `APP_ORIGIN`: `https://noware.so`.
-- `ADDITIONAL_AUTH_ORIGINS`: `https://noware-1010426969452.us-central1.run.app` (explicitly allows sign-in on the direct GCP URL).
+- `ADDITIONAL_AUTH_ORIGINS`: `https://noware-1010426969452.us-central1.run.app` (legacy OAuth allowlist; browser visits to the direct GCP URL now redirect to the canonical domain).
 
 Google Auth Platform lists both `https://noware.so` and `https://noware-1010426969452.us-central1.run.app` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
 
 `npm run dev` is for local UI development without the authentication server. Run `npm run build && npm start` to exercise the server locally. The existing public source repository remains public. Run `node scripts/auth-browser-check.mjs` to check production authentication; a real Noso account must complete the final sign-in check.
+
+## Branding and canonical URLs
+
+The login and explorer use the visual language of noso.so: Inter, white grid backgrounds, neutral borders, square controls and blue accents. `public/favicon.ico` is the exact favicon served by noso.so (downloaded from its declared S3 icon URL).
+
+`/login` serves sign-in; `/login.html` permanently redirects there. Direct `*.run.app` requests redirect to `https://noware.so` with the path and query preserved, except `/api/health`. The Cloudflare worker overwrites `X-Noware-Public-Host` so forwarded requests avoid a redirect loop. This header only controls URL redirects, never authentication. Deploy the worker before the server when changing this routing.

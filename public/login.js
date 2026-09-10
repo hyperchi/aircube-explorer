@@ -27,7 +27,7 @@ async function init() {
       if(width===renderedWidth)return;
       renderedWidth=width;
       container.replaceChildren();
-      google.accounts.id.renderButton(container,{theme:'outline',size:'large',shape:'pill',text:'signin_with',width});
+      google.accounts.id.renderButton(container,{theme:'outline',size:'large',shape:'rectangular',text:'signin_with',width});
     };
     new ResizeObserver(renderButton).observe(container);
     renderButton();

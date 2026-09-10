@@ -9,11 +9,11 @@ try{
  const p=await b.newPage({viewport:{width:1440,height:1000}});
  const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.text().includes('GSI_LOGGER'))errors.push(m.text())});
  await p.goto(base,{timeout:20000});
- if(!p.url().endsWith('/login.html'))throw Error('Root did not redirect to login');
+ if(!p.url().endsWith('/login'))throw Error('Root did not redirect to login');
  await p.locator('#google-button iframe').waitFor({state:'visible',timeout:15000});
  for(const path of ['/board.json','/source/AirCube.kicad_pcb','/source/AirCube.kicad_sch']){
   const r=await p.evaluate(async path=>{const r=await fetch(path,{credentials:'omit'});return {status:r.status,url:r.url}},path);
-  if(r.status!==200||!r.url.endsWith('/login.html'))throw Error('Unauthenticated route accessible: '+path);
+  if(r.status!==200||!r.url.endsWith('/login'))throw Error('Unauthenticated route accessible: '+path);
  }
  const sessionStatus=await p.evaluate(async()=> (await fetch('/api/auth?action=session',{credentials:'omit'})).status);
  if(sessionStatus!==401)throw Error('Missing session was accepted');

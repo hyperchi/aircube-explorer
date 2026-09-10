@@ -9,6 +9,7 @@ export default {
   origin.pathname=incoming.pathname;origin.search=incoming.search;
   const headers=new Headers(request.headers);
   headers.delete('host');
+  headers.set('X-Noware-Public-Host','noware.so');
   const forwarded=new Request(origin,{method:request.method,headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,redirect:'manual'});
   const upstream=await fetch(forwarded,{cf:{cacheTtl:0,cacheEverything:false}});
   const result=new Response(upstream.body,upstream);
