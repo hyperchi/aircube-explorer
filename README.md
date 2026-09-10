@@ -1,4 +1,4 @@
-# AirCube Hardware Playground
+# noware — Hardware Playground
 
 Live: https://aircube-explorer.vercel.app
 
