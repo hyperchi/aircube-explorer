@@ -69,3 +69,13 @@ The login and explorer use the visual language of noso.so: Inter, white grid bac
 `/login` serves sign-in; `/login.html` permanently redirects there. Direct `*.run.app` requests redirect to `https://noware.so` with the path and query preserved, except `/api/health`. The Cloudflare worker overwrites `X-Noware-Public-Host` so forwarded requests avoid a redirect loop. This header only controls URL redirects, never authentication. Deploy the worker before the server when changing this routing.
 
 Guest access: `lib/auth-policy.js` permits the exact Google-verified Gmail address `shanshan0343@gmail.com` alongside verified `@noso.so` Workspace identities. Other Gmail accounts and aliases remain denied. Google audience must be External; the app enforces its own allowlist. The sign-in button has no hosted-domain account-picker filter. Guest sessions use the same 30-day signed, HttpOnly cookie.
+
+## Design lab
+
+The side panel includes a design study for current ESP32-H2 with a gateway, a Wi-Fi MCU replacement (ESP32-C3 candidate), or an added LTE-M modem + SIM. Select Base or Pro sensor configuration, reporting interval, payload, battery, board power, radio rail and supply capacity. Run an accelerated connection sequence, inject missing SIM/network/antenna and supply faults, compare options, save a baseline, and export a JSON study. State remains in local storage.
+
+All numerical power/timing/throughput defaults are **editable illustrative assumptions**, not measurements or guaranteed part specifications. Duty cycle is capped at 100%; throughput limits produce a backlog. Battery energy uses capacity × voltage × usable-energy fraction, divided by average modeled load. Failed attempts consume energy but deliver no data. Each report reconnects; weak signal models doubled connection/transfer time and one retry. Data estimates include configurable overhead and retries over 30 days. Carrier billing, TLS timing, RF, real firmware, detailed electrical behavior and physical PCB edits are not simulated.
+
+Both Base KiCad and the user's Pro schematic photos label U7 ESP32-H2-MINI-1, which has BLE/802.15.4, not Wi-Fi. The Pro-only section adds SCD41 and VCNL4040; ENS210 is omitted. Pro selection changes the sensor configuration description, not the displayed Base layout or an invented measured power load: set the rest-of-board power from measurements. Unrouted signal pads are shown as candidates requiring review; NC pads are excluded. Manufacturer links in each option substantiate connectivity/module choices, not the illustrative numerical defaults.
+
+Verification: `npm test`, then with local Vite running `TEST_URL=http://localhost:5175 node scripts/design-browser-check.mjs` and `TEST_URL=http://localhost:5175 node scripts/browser-check.mjs`.

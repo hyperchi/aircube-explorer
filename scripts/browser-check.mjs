@@ -7,6 +7,7 @@ await page.locator('#pcb .footprint').first().waitFor();
 await page.getByRole('button',{name:'U7 ESP32-H2-MINI-1'}).click();
 await page.locator('#inspector').getByText('COMPONENT INSPECTOR').waitFor();
 await page.locator('#net').selectOption({label:'GND'});
+await page.getByRole('tab',{name:'Air & LEDs'}).click();
 await page.locator('#model').selectOption('pro');
 await page.getByRole('button',{name:'Busy room'}).click();
 if(await page.locator('#rating').textContent()!=='Poor')throw Error('Busy-room simulation failed');

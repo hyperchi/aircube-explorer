@@ -1,5 +1,6 @@
 import './style.css';
 import {simulate} from './simulation.js';
+import {mountDesignLab} from './design-lab.js';
 const $=s=>document.querySelector(s), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const board=await fetch('/board.json').then(r=>{if(!r.ok)throw Error('Board could not be loaded');return r.json()});
 const defaults={tvoc:120,co2:650,brightness:75,model:'base',power:true};
@@ -34,3 +35,5 @@ $('#export').onclick=()=>{const blob=new Blob([JSON.stringify({schema:1,sourceCo
 list();inspect();update();
 
 $('#signout').onclick=async()=>{const r=await fetch('/api/auth?action=logout',{method:'POST'});if(r.ok)location.replace('/login');else alert('Sign-out failed. Please try again.')};
+
+mountDesignLab({board,selectPart:ref=>{const part=parts.find(c=>c.ref===ref);if(part){side='F.Cu';$('#front').classList.add('active');$('#back').classList.remove('active');pan=[0,0];zoom=1;select(part)}}});
