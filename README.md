@@ -1,5 +1,7 @@
 # AirCube Hardware Playground
 
+Live: https://aircube-explorer.vercel.app
+
 Interactive PCB explorer and browser-based behavioral simulator, built from the actual [hyperchi/AirCube](https://github.com/hyperchi/AirCube) KiCad design.
 
 ## Use
@@ -36,3 +38,5 @@ The browser check requires Chrome and a running dev server. Set `TEST_URL` to ch
 ## Attribution
 
 Original AirCube hardware and firmware by [StuckAtPrototype](https://github.com/StuckAtPrototype/AirCube), obtained through hyperchi/AirCube. Original source files retain their upstream content. The extracted data, renderer, and JavaScript simulation port are additions for this explorer. Distributed under Apache-2.0; see LICENSE.
+
+Production is deployed with the Vercel CLI. Automatic GitHub deployments are not connected: Vercel rejected the repository connection with the current integration access. To redeploy manually, run `npx vercel@latest --prod`.
