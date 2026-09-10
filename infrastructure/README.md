@@ -11,6 +11,8 @@ Runtime configuration:
 
 Use a dedicated `noware-runtime` service account with accessor permission only on its session secret. Deploy the Dockerfile to Cloud Run with min instances 0 and a small maximum. `PORT` is supplied by Cloud Run. The app checks Google Workspace membership in `noso.so`; HTTP access to Cloud Run must reach that application login gate.
 
+The service is deployed at `https://noware-1010426969452.us-central1.run.app`. Health endpoint: `/api/health`. Cloudflare route `noware.so/*` is deployed. The apex DNS record must be proxied (orange cloud); the Worker intercepts it and forwards to Cloud Run.
+
 After deployment, set the actual Cloud Run URL in `wrangler.jsonc`, then deploy with `npx wrangler@latest deploy --config infrastructure/wrangler.jsonc`.
 
 Cloudflare zone `31e0af31d6981634c0773920a2c60795` is pending registrar delegation. Required nameservers: `anita.ns.cloudflare.com`, `wilson.ns.cloudflare.com`.

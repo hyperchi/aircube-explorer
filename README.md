@@ -1,6 +1,8 @@
 # noware — Hardware Playground
 
-Live: https://aircube-explorer.vercel.app
+Migration target: https://noware.so
+
+GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured; public DNS activation and the new Google OAuth client remain pending. Vercel stays online until the new domain and login are verified. See [hosting setup](infrastructure/README.md).
 
 Interactive PCB explorer and browser-based behavioral simulator, built from the actual [hyperchi/AirCube](https://github.com/hyperchi/AirCube) KiCad design.
 
