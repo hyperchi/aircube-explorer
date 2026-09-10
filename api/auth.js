@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   const action = new URL(req.url, 'https://localhost').searchParams.get('action');
   const config = {secret: process.env.SESSION_SECRET, domain: ALLOWED_DOMAIN};
-  const origin = process.env.APP_ORIGIN || 'https://aircube-explorer.vercel.app';
+  const origin = process.env.APP_ORIGIN || 'https://noware.so';
   if (req.method === 'POST' && req.headers.origin !== origin) return res.status(403).json({error: 'Request origin not allowed.'});
   if (action === 'logout' && req.method === 'POST') {
     res.setHeader('Set-Cookie', [clearSessionCookie(), clearNonce]);
