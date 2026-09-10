@@ -17,4 +17,4 @@ After deployment, set the actual Cloud Run URL in `wrangler.jsonc`, then deploy 
 
 Cloudflare zone `31e0af31d6981634c0773920a2c60795` is pending registrar delegation. Required nameservers: `anita.ns.cloudflare.com`, `wilson.ns.cloudflare.com`.
 
-Before removing Vercel, verify the custom domain, Google sign-in, 30-day cookie, logout, and unauthenticated blocking of the board and downloads. Remove only the `aircube-explorer` Vercel project after those checks.
+Hosting is GCP and Cloudflare only. Verify the custom domain, Google sign-in, 30-day cookie, logout, and unauthenticated blocking of the board and downloads before considering the setup complete.

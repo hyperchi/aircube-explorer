@@ -2,7 +2,7 @@
 
 Migration target: https://noware.so
 
-GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured; public DNS activation and the new Google OAuth client remain pending. Vercel stays online until the new domain and login are verified. See [hosting setup](infrastructure/README.md).
+GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured; public DNS activation and the new Google OAuth client remain pending. Hosting is exclusively Google Cloud Run with Cloudflare routing. See [hosting setup](infrastructure/README.md).
 
 Interactive PCB explorer and browser-based behavioral simulator, built from the actual [hyperchi/AirCube](https://github.com/hyperchi/AirCube) KiCad design.
 
@@ -35,26 +35,26 @@ python3 scripts/extract.py
 node scripts/browser-check.mjs
 ```
 
-The browser check requires Chrome and a running dev server. Set `TEST_URL` to check a deployed site. Vercel uses `npm run build` and serves `dist`.
+The browser check requires Chrome and a running dev server. Set `TEST_URL` to check a deployed site. Cloud Run runs `node server.js` from the Dockerfile.
 
 ## Attribution
 
 Original AirCube hardware and firmware by [StuckAtPrototype](https://github.com/StuckAtPrototype/AirCube), obtained through hyperchi/AirCube. Original source files retain their upstream content. The extracted data, renderer, and JavaScript simulation port are additions for this explorer. Distributed under Apache-2.0; see LICENSE.
 
-Production is deployed with the Vercel CLI. Automatic GitHub deployments are not connected: Vercel rejected the repository connection with the current integration access. To redeploy manually, run `npx vercel@latest --prod`.
+Deploy using `./infrastructure/deploy-gcp.sh`; deploy Cloudflare routing with `npx wrangler@latest deploy --config infrastructure/wrangler.jsonc`.
 
 ## Noso Google sign-in
 
-Production routes are protected by Vercel Routing Middleware, including board JSON, bundles, and source downloads. Only the login page, login script, and authentication endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
+Production routes are protected by the Express server on Cloud Run, including board JSON, bundles, and source downloads. Only the login page, login script, authentication endpoint, and health endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
 
 Verified identities receive a signed HttpOnly, Secure, SameSite=Lax cookie lasting exactly 30 days (2,592,000 seconds). Expiry is fixed at sign-in, not extended by page visits. Sign out clears this browser's session. Changing `SESSION_SECRET` invalidates all sessions. Workspace membership is checked at sign-in; removing a Workspace account does not revoke an existing 30-day session immediately.
 
-Required server-only Vercel environment variables:
+Required server-only Cloud Run environment variables:
 
-- `GOOGLE_CLIENT_ID`: existing GCP `GOOGLE_CLIENT_ID` OAuth web client.
+- `GOOGLE_CLIENT_ID`: OAuth web client in the dedicated noware project.
 - `SESSION_SECRET`: independently generated random secret, at least 32 characters.
-- `APP_ORIGIN`: `https://aircube-explorer.vercel.app`.
+- `APP_ORIGIN`: `https://noware.so`.
 
-Google Auth Platform must list `https://aircube-explorer.vercel.app` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
+Google Auth Platform must list `https://noware.so` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
 
-`npm run dev` is for local UI development and does not execute Vercel middleware. Authentication integration tests run with `npm test`. To exercise actual middleware, use Vercel deployment or `vercel dev`. The existing public source repository remains public. Historical deployment URLs were checked and redirect to Vercel SSO. Run `node scripts/auth-browser-check.mjs` to check the production gate and Google button; a real Noso account must complete the final end-to-end sign-in check.
+`npm run dev` is for local UI development without the authentication server. Run `npm run build && npm start` to exercise the server locally. The existing public source repository remains public. Run `node scripts/auth-browser-check.mjs` to check production authentication; a real Noso account must complete the final sign-in check.

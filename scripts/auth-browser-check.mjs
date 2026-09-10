@@ -1,5 +1,5 @@
 import {chromium} from '@playwright/test';
-const base=process.env.TEST_URL||'https://aircube-explorer.vercel.app';
+const base=process.env.TEST_URL||'https://noware.so';
 for(const path of ['/','/board.json','/source/AirCube.kicad_pcb','/source/AirCube.kicad_sch']){
  const r=await fetch(base+path,{redirect:'manual'});
  if(r.status!==303||!r.headers.get('location')?.endsWith('/login.html'))throw Error('Unauthenticated route accessible: '+path);

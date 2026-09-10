@@ -1,12 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {generateKeyPair,exportJWK,SignJWT} from 'jose';
-import {readSession,getCookie,SESSION_COOKIE,SESSION_SECONDS} from '../lib/session.js';
+import {readSession,getCookie,SESSION_COOKIE} from '../lib/session.js';
 import handler from '../api/auth.js';
-import middleware from '../middleware.js';
 function response(){return {statusCode:200,headers:{},setHeader(k,v){this.headers[k.toLowerCase()]=v;},status(n){this.statusCode=n;return this;},json(data){this.body=data;return this;}}}
 function request(action,method='GET',extra={}){return {url:'/api/auth?action='+action,method,headers:{origin:'https://noware.so','content-type':'application/json',...extra.headers},body:extra.body};}
-test('complete identity exchange, route protection, logout and invalid identities',async()=>{
+test('complete identity exchange, logout and invalid identities',async()=>{
  process.env.SESSION_SECRET='test-only-secret'.repeat(4);process.env.GOOGLE_CLIENT_ID='test-client';
  const originalFetch=globalThis.fetch;
  const {privateKey,publicKey}=await generateKeyPair('RS256');
@@ -21,11 +20,6 @@ test('complete identity exchange, route protection, logout and invalid identitie
   const good=await exchange(identity);assert.equal(good.statusCode,200);
   const sessionCookie=good.headers['set-cookie'][0];assert.match(sessionCookie,/Max-Age=2592000/);
   assert.equal((await readSession(getCookie(sessionCookie,SESSION_COOKIE),{secret:process.env.SESSION_SECRET,domain:'noso.so'})).email,'person@noso.so');
-  for(const path of ['/','/board.json','/source/AirCube.kicad_pcb','/assets/main.js']){
-   assert.equal((await middleware(new Request('https://noware.so'+path))).status,303);
-   const authorized=await middleware(new Request('https://noware.so'+path,{headers:{cookie:sessionCookie}}));
-   assert.equal(authorized.status,200);assert.equal(authorized.headers.get('cache-control'),'private, no-store');
-  }
   assert.equal((await exchange({...identity,hd:'evil.com'})).statusCode,403);
   assert.equal((await exchange({...identity,email_verified:false})).statusCode,403);
   assert.equal((await exchange({...identity,nonce:'wrong'})).statusCode,401);
