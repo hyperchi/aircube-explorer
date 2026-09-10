@@ -11,7 +11,7 @@ export default {
   headers.delete('host');
   headers.set('X-Noware-Public-Host','noware.so');
   const forwarded=new Request(origin,{method:request.method,headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,redirect:'manual'});
-  const upstream=await fetch(forwarded,{cf:{cacheTtl:0,cacheEverything:false}});
+  const upstream=await fetch(forwarded,{cache:'no-store'});
   const result=new Response(upstream.body,upstream);
   result.headers.set('Cache-Control','private, no-store');
   const location=result.headers.get('location');

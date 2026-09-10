@@ -11,6 +11,8 @@ try{
  await p.goto(base,{timeout:20000});
  if(!p.url().endsWith('/login'))throw Error('Root did not redirect to login');
  await p.locator('#google-button iframe').waitFor({state:'visible',timeout:15000});
+ const challenge=(await p.context().cookies()).find(c=>c.name==='__Host-noware-challenge');
+ if(!challenge||!challenge.httpOnly||!challenge.secure||challenge.sameSite!=='Strict')throw Error('Login security cookie was not delivered safely through the proxy');
  for(const path of ['/board.json','/source/AirCube.kicad_pcb','/source/AirCube.kicad_sch']){
   const r=await p.evaluate(async path=>{const r=await fetch(path,{credentials:'omit'});return {status:r.status,url:r.url}},path);
   if(r.status!==200||!r.url.endsWith('/login'))throw Error('Unauthenticated route accessible: '+path);
