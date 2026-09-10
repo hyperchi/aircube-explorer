@@ -18,3 +18,10 @@ test('rejects forged cookies and other domains',async()=>{
  for(const email of ['person@example.com.evil.com','person@sub.example.com','person@evil.com','person@@example.com'])assert.equal(allowedEmail(email,'example.com'),false);
  await assert.rejects(createSession({email:'person@evil.com',sub:'123'},config));
 });
+
+test('Google identity must be verified and belong to exact Workspace domain',async()=>{
+ const {isNosoIdentity}=await import('../lib/auth-policy.js');
+ const p={sub:'123',email:'person@noso.so',email_verified:true,hd:'noso.so'};
+ assert.equal(isNosoIdentity(p),true);
+ for(const change of [{email_verified:false},{hd:undefined},{hd:'evil.com'},{email:'person@noso.so.evil.com'},{email:'person@gmail.com'},{sub:''}])assert.equal(isNosoIdentity({...p,...change}),false);
+});

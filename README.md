@@ -18,7 +18,7 @@ The rendered board is **AirCube v1.1 Base**, extracted from upstream commit `bd8
 
 The renderer uses original pad positions/rotations, routing, vias, footprint linework, filled copper polygons, and edge cuts. It simplifies component body rendering and does not render custom footprint graphics/text or 3D STEP models. It is an explorer, not a PCB editor; changes do not modify manufacturing files.
 
-`src/simulation.js` ports the TVOC and CO₂ threshold interpolation and worst-source selection from upstream `firmware/main/main.c`. Target hue follows the green-to-red firmware curve. Manual brightness is a visual approximation. This does **not** execute ESP32 firmware, solve electrical circuits, emulate sensor dynamics/warm-up, reproduce automatic ambient-light dimming or LED transition timing, or connect to live hardware. No AI credentials or backend are required. Scenario settings stay in browser local storage unless downloaded.
+`src/simulation.js` ports the TVOC and CO₂ threshold interpolation and worst-source selection from upstream `firmware/main/main.c`. Target hue follows the green-to-red firmware curve. Manual brightness is a visual approximation. This does **not** execute ESP32 firmware, solve electrical circuits, emulate sensor dynamics/warm-up, reproduce automatic ambient-light dimming or LED transition timing, or connect to live hardware. No AI credentials are required. Production sign-in uses a small server authentication endpoint. Scenario settings stay in browser local storage unless downloaded.
 
 ## Development
 
@@ -40,3 +40,19 @@ The browser check requires Chrome and a running dev server. Set `TEST_URL` to ch
 Original AirCube hardware and firmware by [StuckAtPrototype](https://github.com/StuckAtPrototype/AirCube), obtained through hyperchi/AirCube. Original source files retain their upstream content. The extracted data, renderer, and JavaScript simulation port are additions for this explorer. Distributed under Apache-2.0; see LICENSE.
 
 Production is deployed with the Vercel CLI. Automatic GitHub deployments are not connected: Vercel rejected the repository connection with the current integration access. To redeploy manually, run `npx vercel@latest --prod`.
+
+## Noso Google sign-in
+
+Production routes are protected by Vercel Routing Middleware, including board JSON, bundles, and source downloads. Only the login page, login script, and authentication endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
+
+Verified identities receive a signed HttpOnly, Secure, SameSite=Lax cookie lasting exactly 30 days (2,592,000 seconds). Expiry is fixed at sign-in, not extended by page visits. Sign out clears this browser's session. Changing `SESSION_SECRET` invalidates all sessions. Workspace membership is checked at sign-in; removing a Workspace account does not revoke an existing 30-day session immediately.
+
+Required server-only Vercel environment variables:
+
+- `GOOGLE_CLIENT_ID`: existing GCP `GOOGLE_CLIENT_ID` OAuth web client.
+- `SESSION_SECRET`: independently generated random secret, at least 32 characters.
+- `APP_ORIGIN`: `https://aircube-explorer.vercel.app`.
+
+Google Auth Platform must list `https://aircube-explorer.vercel.app` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
+
+`npm run dev` is for local UI development and does not execute Vercel middleware. Authentication integration tests run with `npm test`. To exercise actual middleware, use Vercel deployment or `vercel dev`. The existing public source repository and old deployments are outside the application session boundary.
