@@ -25,6 +25,9 @@ test('complete identity exchange, logout and invalid identities',async()=>{
   assert.equal((await exchange({...identity,nonce:'wrong'})).statusCode,401);
   assert.equal((await exchange(identity,{cookie:''})).statusCode,401);
   assert.equal((await exchange(identity,{origin:'https://evil.com'})).statusCode,403);
+  process.env.ADDITIONAL_AUTH_ORIGINS='https://noware-1010426969452.us-central1.run.app';
+  assert.equal((await exchange(identity,{origin:process.env.ADDITIONAL_AUTH_ORIGINS})).statusCode,200);
+  assert.equal((await exchange(identity,{origin:'https://noware-1010426969452.us-central1.run.app.evil.com'})).statusCode,403);
   const logout=response();await handler(request('logout','POST'),logout);assert.match(logout.headers['set-cookie'][0],/Max-Age=0/);
- }finally{globalThis.fetch=originalFetch;delete process.env.SESSION_SECRET;delete process.env.GOOGLE_CLIENT_ID;}
+ }finally{globalThis.fetch=originalFetch;delete process.env.SESSION_SECRET;delete process.env.GOOGLE_CLIENT_ID;delete process.env.ADDITIONAL_AUTH_ORIGINS;}
 });
