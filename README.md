@@ -2,7 +2,7 @@
 
 Migration target: https://noware.so
 
-GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured; public DNS activation and the new Google OAuth client remain pending. Hosting is exclusively Google Cloud Run with Cloudflare routing. See [hosting setup](infrastructure/README.md).
+GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured and the zone is active. The dedicated Google OAuth client is configured on Cloud Run. Cloudflare Universal SSL is still awaiting automatic TXT validation; real end-to-end sign-in remains to be checked after HTTPS is available. Hosting is exclusively Google Cloud Run with Cloudflare routing. See [hosting setup](infrastructure/README.md).
 
 Interactive PCB explorer and browser-based behavioral simulator, built from the actual [hyperchi/AirCube](https://github.com/hyperchi/AirCube) KiCad design.
 
