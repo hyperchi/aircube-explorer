@@ -8,6 +8,7 @@ try{
  assert.match(await page.locator('#design-results').innerText(),/Supply current below modeled peak/);
  assert.deepEqual(await page.locator('[data-design-ref]').evaluateAll(es=>es.map(e=>e.dataset.designRef)),['U7','U6','P1']);
  assert.match(await page.locator('#design-board-note').innerText(),/proposed additions/);
+ await page.locator('#design-usbCurrent').fill('1500');await page.locator('#design-usbCurrent').blur();
  await page.locator('#design-supply').fill('1500');await page.locator('#design-supply').blur();
  assert.match(await page.locator('#design-results').innerText(),/Connection possible/);
  await page.locator('[data-flag=sim]').uncheck();await page.locator('#run-design').click();await page.getByText('SIM unavailable',{exact:true}).waitFor();
