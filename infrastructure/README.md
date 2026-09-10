@@ -21,6 +21,8 @@ Hosting is GCP and Cloudflare only. Verify the custom domain, Google sign-in, 30
 
 ## Verified runtime configuration (September 10, 2026)
 
-Latest revision: `noware-00005-b7c`. Public OAuth client ID: `1010426969452-fshg4587ckka7sms7i9lfgrf8kvnh5qv.apps.googleusercontent.com`; internal audience, `https://noware.so` JavaScript origin, created in `noware-hardware`. The client ID is configured in Cloud Run. Session secret remains a Secret Manager reference.
+Latest revision: `noware-00007-fvz`. Public OAuth client ID: `1010426969452-fshg4587ckka7sms7i9lfgrf8kvnh5qv.apps.googleusercontent.com`; internal audience, `https://noware.so` JavaScript origin, created in `noware-hardware`. The client ID is configured in Cloud Run. Session secret remains a Secret Manager reference.
 
 Cloud Run health, unauthenticated redirects, and public auth config were verified. Google sign-in button rendered without GSI errors in a browser test mapping noware.so requests directly to Cloud Run; this validates the Google origin registration but does not validate Cloudflare TLS or actual user sign-in. Cloudflare Universal SSL is now **Active**, expiring 2026-12-09. Live HTTPS and Google-button checks through the real Cloudflare endpoint pass. If local DNS is stale, run `TEST_RESOLVE_IP=104.21.51.204 node scripts/auth-browser-check.mjs`. This only overrides DNS to Cloudflare's actual IP; it does not bypass TLS or application routing. A real Noso sign-in and logout still need to be verified.
+
+Direct GCP access is also enabled at `https://noware-1010426969452.us-central1.run.app`. It is registered on the same Google OAuth client and explicitly whitelisted through `ADDITIONAL_AUTH_ORIGINS`. This avoids stale custom-domain DNS caches while retaining all Noso account restrictions. Both the direct GCP page and the real Cloudflare endpoint passed the browser auth-gate/button/mobile-layout checks. Actual account sign-in remains to be checked by a Noso user.

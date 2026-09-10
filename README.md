@@ -1,6 +1,8 @@
 # noware — Hardware Playground
 
-Migration target: https://noware.so
+Primary domain: https://noware.so
+
+Direct GCP access while DNS caches update: https://noware-1010426969452.us-central1.run.app
 
 GCP project: `noware-hardware`. Cloud Run is deployed at https://noware-1010426969452.us-central1.run.app. Cloudflare routing is configured and the zone is active. The dedicated Google OAuth client is configured on Cloud Run. Cloudflare Universal SSL is active and HTTPS/login-page checks pass at its current IPs. Some local DNS caches still resolve the old Namecheap parking address. Real-account sign-in and logout remain to be verified. Hosting is exclusively Google Cloud Run with Cloudflare routing. See [hosting setup](infrastructure/README.md).
 
@@ -54,7 +56,8 @@ Required server-only Cloud Run environment variables:
 - `GOOGLE_CLIENT_ID`: OAuth web client in the dedicated noware project.
 - `SESSION_SECRET`: independently generated random secret, at least 32 characters.
 - `APP_ORIGIN`: `https://noware.so`.
+- `ADDITIONAL_AUTH_ORIGINS`: `https://noware-1010426969452.us-central1.run.app` (explicitly allows sign-in on the direct GCP URL).
 
-Google Auth Platform must list `https://noware.so` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
+Google Auth Platform lists both `https://noware.so` and `https://noware-1010426969452.us-central1.run.app` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
 
 `npm run dev` is for local UI development without the authentication server. Run `npm run build && npm start` to exercise the server locally. The existing public source repository remains public. Run `node scripts/auth-browser-check.mjs` to check production authentication; a real Noso account must complete the final sign-in check.
