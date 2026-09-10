@@ -10,7 +10,7 @@ test('Cloud Run server protects assets and exposes only login and health',async(
   for(const url of ['/','/board.json','/source/AirCube.kicad_pcb','/source/AirCube.kicad_sch']){
    const r=await fetch(base+url,{redirect:'manual'});assert.equal(r.status,303);assert.equal(r.headers.get('location'),'/login.html');
   }
-  assert.equal((await fetch(base+'/healthz')).status,200);
+  assert.equal((await fetch(base+'/api/health')).status,200);
   assert.equal((await fetch(base+'/login.html')).status,200);
   const token=await createSession({email:'person@noso.so',sub:'123'},{secret:process.env.SESSION_SECRET,domain:'noso.so'});
   const r=await fetch(base+'/board.json',{headers:{cookie:sessionCookie(token)}});assert.equal(r.status,200);assert.equal((await r.json()).tracks.length,301);assert.equal(r.headers.get('cache-control'),'private, no-store');

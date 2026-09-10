@@ -10,7 +10,7 @@ export function createApp(){
  const dist=fileURLToPath(new URL('./dist/',import.meta.url));
  app.disable('x-powered-by');
  app.use((req,res,next)=>{res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('Cross-Origin-Opener-Policy','same-origin-allow-popups');next()});
- app.get('/healthz',(req,res)=>res.status(200).send('ok'));
+ app.get('/api/health',(req,res)=>res.status(200).send('ok'));
  app.all('/api/auth',express.json({limit:'20kb'}),auth);
  for(const file of ['login.html','login.js'])app.get('/'+file,(req,res)=>res.sendFile(path.join(dist,file)));
  app.use(async(req,res,next)=>{

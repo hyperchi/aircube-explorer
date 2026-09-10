@@ -6,5 +6,5 @@
   "workers_dev": false,
   "preview_urls": false,
   "routes": [{"pattern": "noware.so", "custom_domain": true}],
-  "vars": {"CLOUD_RUN_ORIGIN": "https://not-configured.run.app"}
+  "vars": {"CLOUD_RUN_ORIGIN": "https://noware-1010426969452.us-central1.run.app"}
 }
