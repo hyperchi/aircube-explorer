@@ -20,7 +20,17 @@ async function init() {
         location.replace('/');
       }catch(e){fail(e.message||'Sign-in failed. Please try again.');}
     }});
-    google.accounts.id.renderButton(document.querySelector('#google-button'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:Math.min(340,innerWidth-120)});
+    const container=document.querySelector('#google-button');
+    let renderedWidth=0;
+    const renderButton=()=>{
+      const width=Math.max(200,Math.min(340,container.clientWidth));
+      if(width===renderedWidth)return;
+      renderedWidth=width;
+      container.replaceChildren();
+      google.accounts.id.renderButton(container,{theme:'outline',size:'large',shape:'pill',text:'signin_with',width});
+    };
+    new ResizeObserver(renderButton).observe(container);
+    renderButton();
     message.textContent='Only Noso Google Workspace accounts can sign in.';
   }catch(e){fail(e.message||'Sign-in is unavailable. Please try again later.');}
 }
