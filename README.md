@@ -45,7 +45,7 @@ Original AirCube hardware and firmware by [StuckAtPrototype](https://github.com/
 
 Deploy using `./infrastructure/deploy-gcp.sh`; deploy Cloudflare routing with `npx wrangler@latest deploy --config infrastructure/wrangler.jsonc`.
 
-## Noso Google sign-in
+## Noso and approved guest Google sign-in
 
 Production routes are protected by the Express server on Cloud Run, including board JSON, bundles, and source downloads. Only the login page, login script, favicon, authentication endpoint, and health endpoint are public. The API verifies Google's RS256 signature, issuer, audience, freshness, email verification, exact `hd=noso.so`, and a browser-bound login nonce. Merely entering an email address never grants access.
 
@@ -67,3 +67,5 @@ Google Auth Platform lists both `https://noware.so` and `https://noware-10104269
 The login and explorer use the visual language of noso.so: Inter, white grid backgrounds, neutral borders, square controls and blue accents. `public/favicon.ico` is the exact favicon served by noso.so (downloaded from its declared S3 icon URL).
 
 `/login` serves sign-in; `/login.html` permanently redirects there. Direct `*.run.app` requests redirect to `https://noware.so` with the path and query preserved, except `/api/health`. The Cloudflare worker overwrites `X-Noware-Public-Host` so forwarded requests avoid a redirect loop. This header only controls URL redirects, never authentication. Deploy the worker before the server when changing this routing.
+
+Guest access: `lib/auth-policy.js` permits the exact Google-verified Gmail address `shanshan0343@gmail.com` alongside verified `@noso.so` Workspace identities. Other Gmail accounts and aliases remain denied. Google audience must be External; the app enforces its own allowlist. The sign-in button has no hosted-domain account-picker filter. Guest sessions use the same 30-day signed, HttpOnly cookie.

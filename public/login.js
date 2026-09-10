@@ -11,7 +11,7 @@ async function init() {
     script.src='https://accounts.google.com/gsi/client';
     script.async=true;
     await new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=()=>reject(Error('Google sign-in could not load. Check your connection and try again.'));document.head.append(script);});
-    google.accounts.id.initialize({client_id:config.clientId,hd:config.domain,nonce:config.nonce,auto_select:false,callback:async({credential})=>{
+    google.accounts.id.initialize({client_id:config.clientId,nonce:config.nonce,auto_select:false,callback:async({credential})=>{
       message.textContent='Verifying your Noso account…';
       try {
         const result=await fetch('/api/auth?action=login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential})});
@@ -31,7 +31,7 @@ async function init() {
     };
     new ResizeObserver(renderButton).observe(container);
     renderButton();
-    message.textContent='Only Noso Google Workspace accounts can sign in.';
+    message.textContent='Sign in with your Noso account or an approved guest Google account.';
   }catch(e){fail(e.message||'Sign-in is unavailable. Please try again later.');}
 }
 init();

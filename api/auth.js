@@ -43,10 +43,10 @@ export default async function handler(req, res) {
       });
       const {payload} = await jwtVerify(credential, googleKeys, {
         algorithms:['RS256'], issuer:['https://accounts.google.com','accounts.google.com'], audience:process.env.GOOGLE_CLIENT_ID,
-        requiredClaims:['exp','iat','sub','email','email_verified','hd','nonce'], maxTokenAge:'10m',
+        requiredClaims:['exp','iat','sub','email','email_verified','nonce'], maxTokenAge:'10m',
       });
       if (!challenge.nonce || payload.nonce !== challenge.nonce) throw new Error('Invalid challenge');
-      if (!isNosoIdentity(payload)) return res.status(403).json({error:'Please use your @noso.so Google Workspace account.'});
+      if (!isNosoIdentity(payload)) return res.status(403).json({error:'Please use a Noso account or an approved guest Google account.'});
       const token = await createSession({email:payload.email,sub:payload.sub}, config);
       res.setHeader('Set-Cookie', [sessionCookie(token), clearNonce]);
       return res.status(200).json({ok:true});

@@ -20,6 +20,11 @@ test('complete identity exchange, logout and invalid identities',async()=>{
   const good=await exchange(identity);assert.equal(good.statusCode,200);
   const sessionCookie=good.headers['set-cookie'][0];assert.match(sessionCookie,/Max-Age=2592000/);
   assert.equal((await readSession(getCookie(sessionCookie,SESSION_COOKIE),{secret:process.env.SESSION_SECRET,domain:'noso.so'})).email,'person@noso.so');
+  const guest={...identity,email:'shanshan0343@gmail.com'};delete guest.hd;
+  const guestResult=await exchange(guest);assert.equal(guestResult.statusCode,200);
+  assert.equal((await readSession(getCookie(guestResult.headers['set-cookie'][0],SESSION_COOKIE),{secret:process.env.SESSION_SECRET,domain:'noso.so'})).email,guest.email);
+  for(const email of ['other@gmail.com','shanshan0343+alias@gmail.com','shanshan0343@gmail.com.evil.com'])assert.equal((await exchange({...guest,email})).statusCode,403);
+  assert.equal((await exchange({...guest,email_verified:false})).statusCode,403);
   assert.equal((await exchange({...identity,hd:'evil.com'})).statusCode,403);
   assert.equal((await exchange({...identity,email_verified:false})).statusCode,403);
   assert.equal((await exchange({...identity,nonce:'wrong'})).statusCode,401);
