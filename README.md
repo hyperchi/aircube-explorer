@@ -55,4 +55,4 @@ Required server-only Vercel environment variables:
 
 Google Auth Platform must list `https://aircube-explorer.vercel.app` under the client's **Authorized JavaScript origins**. No redirect URI or Google client secret is needed for this GIS callback flow. The browser receives only the public client ID and a short-lived nonce.
 
-`npm run dev` is for local UI development and does not execute Vercel middleware. Authentication integration tests run with `npm test`. To exercise actual middleware, use Vercel deployment or `vercel dev`. The existing public source repository and old deployments are outside the application session boundary.
+`npm run dev` is for local UI development and does not execute Vercel middleware. Authentication integration tests run with `npm test`. To exercise actual middleware, use Vercel deployment or `vercel dev`. The existing public source repository remains public. Historical deployment URLs were checked and redirect to Vercel SSO. Run `node scripts/auth-browser-check.mjs` to check the production gate and Google button; a real Noso account must complete the final end-to-end sign-in check.
