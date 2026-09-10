@@ -1,0 +1,4 @@
+AirCube Hardware Playground
+Includes AirCube hardware design data and adapted firmware threshold calculations from StuckAtPrototype/AirCube (Apache License 2.0), via hyperchi/AirCube, commit bd857275c1f02efbec6942a96e433bde9d4d417e.
+https://github.com/StuckAtPrototype/AirCube
+Explorer UI, KiCad extraction tooling, and browser simulation added in 2026.
