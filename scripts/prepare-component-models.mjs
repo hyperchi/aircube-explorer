@@ -1,9 +1,11 @@
 // Usage: node scripts/prepare-component-models.mjs <AirCube.step> <ESP32-H2-MINI-1.STEP>
 import fs from 'node:fs';import occtImport from 'occt-import-js';
-const [boardPath,espPath,wifiPath]=process.argv.slice(2);if(!boardPath||!espPath)throw Error('Pass board STEP and Espressif STEP paths. Sources are recorded in public/models/README.md.');
+const [boardPath,espPath,wifiPath,bg95Path]=process.argv.slice(2);if(!boardPath||!espPath)throw Error('Pass board STEP and Espressif STEP paths. Sources are recorded in public/models/README.md.');
 const occt=await occtImport();fs.mkdirSync('public/models',{recursive:true});
 function read(path){const result=occt.ReadStepFile(fs.readFileSync(path),{linearUnit:'millimeter',linearDeflection:0.02});if(!result.success)throw Error('Cannot read '+path);return result;}
 function write(name,meshes){const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const m of meshes)for(let i=0;i<m.attributes.position.array.length;i++){const a=i%3,v=m.attributes.position.array[i];min[a]=Math.min(min[a],v);max[a]=Math.max(max[a],v)}const center=min.map((v,i)=>(v+max[i])/2),round=v=>Math.round(v*10000)/10000;const data={units:'mm',dimensions:max.map((v,i)=>round(v-min[i])),meshes:meshes.map(m=>({positions:m.attributes.position.array.map((v,i)=>round(v-center[i%3])),normals:m.attributes.normal?.array.map(round),indices:m.index.array,color:m.color,faces:m.brep_faces.filter(f=>f.color)}))};fs.writeFileSync('public/models/'+name+'.json',JSON.stringify(data));console.log(name,data.dimensions,meshes.length+' meshes');}
 const board=read(boardPath),names={'R_0603_1608Metric':'resistor-0603','C_0603_1608Metric':'capacitor-0603','SOT-23':'sot23','D_SOD-523':'sod523','IN-PI15_INL':'rgb-led'},done=new Set();function walk(n){if(names[n.name]&&!done.has(n.name)){write(names[n.name],n.meshes.map(i=>board.meshes[i]));done.add(n.name)}for(const c of n.children)walk(c)}walk(board.root);write('esp32-h2-mini-1',read(espPath).meshes);
 
 if(wifiPath)write('esp32-c3-mini-1',read(wifiPath).meshes);
+
+if(bg95Path)write('bg95',read(bg95Path).meshes);
