@@ -20,7 +20,7 @@ for url, expected, location in cases:
     for attempt in range(6):
         try:
             try:
-                response = opener.open(url, timeout=20)
+                response = opener.open(urllib.request.Request(url, headers={'User-Agent': 'noware-deployment-check/1.0'}), timeout=20)
             except urllib.error.HTTPError as error:
                 response = error
             with response:
