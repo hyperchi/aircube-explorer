@@ -5,3 +5,5 @@ dist
 .env*
 tests
 scripts
+
+gha-creds-*.json

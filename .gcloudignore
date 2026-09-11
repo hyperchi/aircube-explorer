@@ -4,3 +4,5 @@ node_modules
 dist
 .env*
 test-results
+
+gha-creds-*.json

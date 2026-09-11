@@ -1,0 +1,85 @@
+name: Deploy noware to GCP
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noware-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GCP_PROJECT: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
+      ARTIFACT_REPOSITORY: ${{ vars.ARTIFACT_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Build and publish container
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry="${GCP_REGION}-docker.pkg.dev"
+          image="${registry}/${GCP_PROJECT}/${ARTIFACT_REPOSITORY}/noware:${GITHUB_SHA}"
+          gcloud auth configure-docker "$registry" --quiet
+          docker build --tag "$image" .
+          docker push "$image"
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$image")
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Deploy immutable image to Cloud Run
+        env:
+          DEPLOY_IMAGE: ${{ steps.image.outputs.digest }}
+        run: |
+          gcloud run deploy "$CLOUD_RUN_SERVICE" \
+            --image="$DEPLOY_IMAGE" \
+            --project="$GCP_PROJECT" \
+            --region="$GCP_REGION" \
+            --update-labels="managed-by=github-actions,git-sha=${GITHUB_SHA}" \
+            --quiet
+      - name: Verify live service
+        run: |
+          python3 scripts/deployment-smoke.py
+          revision=$(gcloud run services describe "$CLOUD_RUN_SERVICE" --project="$GCP_PROJECT" --region="$GCP_REGION" --format='value(status.latestReadyRevisionName)')
+          echo "### Deployed to https://noware.so" >> "$GITHUB_STEP_SUMMARY"
+          echo "Revision: $revision" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

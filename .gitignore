@@ -3,3 +3,5 @@ dist/
 .vercel/
 test-results/
 .vercel
+
+gha-creds-*.json
